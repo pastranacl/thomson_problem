@@ -1,7 +1,7 @@
 /****************************************************************************
 
     mcsphere: Monte-Carlo equilibration of particles in a spherical shell 
-              (Thomson's problem) for homogeneous distance between vertexes
+            (Thomson's problem) for homogeneous distance between vertexes
 
     Copyright (C) 2019  Cesar L. Pastrana
 
@@ -68,41 +68,41 @@ int main(int argc, char *argv[])
 
 void sphere(double *rx, double *ry, double *rz, double *E, double R, int N, int MC_STEPS)
 {
-	double *azi, *polar;
-	double tx, ty, tz, tpolar, tazi;
+    double *azi, *polar;
+    double tx, ty, tz, tpolar, tazi;
     double tE, DE;
-	double r;
+    double r;
     double T, dT, kBT, BETA;
-	
+    
     int tp;
-	long *idum, foornd = -time(NULL);   /* Varibles for randm number generator */   
-	idum = &foornd;
-	
+    long *idum, foornd = -time(NULL);   /* Varibles for randm number generator */   
+    idum = &foornd;
+    
     char numid[20];    
     char coord_flenme[1000] = COORDS_FILE_NAME;
 
-	FILE *coords_file;
+    FILE *coords_file;
     FILE *energy_file;   
-	
+    
     T = INIT_TEMP;
     dT = (INIT_TEMP-1.0)/( (double)MC_STEPS/ANNEAL_TIME );
     kBT=kB*T;
     BETA = 1.0/kBT;
     
     
-	/* Initial random positioning of the particles in the surface of a hemisphere */
+    /* Initial random positioning of the particles in the surface of a hemisphere */
     azi   = (double *)malloc(N*sizeof(double*)); 
     polar = (double *)malloc(N*sizeof(double*)); 
-	for( int i=0; i<N; i++)
-	{
-		azi[i] = 2*PI*ran1(idum);
-		polar[i] = PI*ran1(idum);	
-		rx[i]=R*sin(polar[i])*cos(azi[i]);
-		ry[i]=R*sin(polar[i])*sin(azi[i]);
-		rz[i]=R*cos(polar[i]); 
-	}
+    for( int i=0; i<N; i++)
+    {
+        azi[i] = 2*PI*ran1(idum);
+        polar[i] = PI*ran1(idum);	
+        rx[i]=R*sin(polar[i])*cos(azi[i]);
+        ry[i]=R*sin(polar[i])*sin(azi[i]);
+        rz[i]=R*cos(polar[i]); 
+    }
     
-	/* Initial configuration energy */
+    /* Initial configuration energy */
     tE = 0;
     #pragma omp parallel for reduction(+:tE), private(r)
     for(int i=0; i<N; i++) {
@@ -117,8 +117,8 @@ void sphere(double *rx, double *ry, double *rz, double *E, double R, int N, int 
     
     
     /* +++++++++++++++++++++    MAIN MONTE CARLO ROUTINE  +++++++++++++++++++++ */
-	for(int n=1; n<MC_STEPS; n++)
-	{
+    for(int n=1; n<MC_STEPS; n++)
+    {
         if(n % ANNEAL_TIME==0) { 
             T-=dT; 
             kBT = kB*T; 
@@ -126,10 +126,10 @@ void sphere(double *rx, double *ry, double *rz, double *E, double R, int N, int 
             
             // Here you can add if the slope is nearly constant and scape in affirmative case
         }
-				
-		// Select a random particle and atempt a random move 
-		tp = (N - 1)*ran1(idum);
-		
+                
+        // Select a random particle and atempt a random move 
+        tp = (N - 1)*ran1(idum);
+        
         /* Attempted displacement */
         tpolar = polar[tp];
         tazi   = azi[tp];
@@ -143,7 +143,7 @@ void sphere(double *rx, double *ry, double *rz, double *E, double R, int N, int 
         ry[tp] = R*sin(polar[tp])*sin(azi[tp]);
         rz[tp] = R*cos(polar[tp]);
         
-		
+        
 
         /* Calculates the energy of the new configuration */
         tE = 0;
@@ -168,8 +168,8 @@ void sphere(double *rx, double *ry, double *rz, double *E, double R, int N, int 
             azi[tp] = tazi;
             polar[tp] = tpolar;
             E[n] = E[n-1];                   
-       }
-       
+    }
+    
         /* Saves the coordinates of the system after MC optimization */
         /*
         if( n > MCSTEPS - 5000 ){
@@ -178,13 +178,13 @@ void sphere(double *rx, double *ry, double *rz, double *E, double R, int N, int 
             strcat(coord_flenme, numid );      
             strcat(coord_flenme, ".dat");
             coords_file = fopen(coord_flenme, "w");  
-	        for(int i=0; i<N; i++)
+            for(int i=0; i<N; i++)
                 fprintf(coords_file, "%.10g\t%.10g\t%.10g\n", rx[i], ry[i], rz[i]);
             fclose(coords_file); 
         }*/
-	}
-	/* ---------------------------------------------------------------------------- */
-  
+    }
+    /* ---------------------------------------------------------------------------- */
+
     free(polar);
     free(azi);
     
@@ -194,17 +194,17 @@ void sphere(double *rx, double *ry, double *rz, double *E, double R, int N, int 
     energy_file = fopen(MC_ENRGY_FILE_NAME, "w");
     for(int n=0; n<MC_STEPS; n+=200)
         fprintf(energy_file, "%d\t%.10g\n", n, E[n]); 
-     fclose(energy_file);
+    fclose(energy_file);
 
     /* Writes the eq. configuration  */    
     coords_file = fopen(COORDS_FILE_NAME, "w");  
-	for(int i=0; i<N; i++)
+    for(int i=0; i<N; i++)
         fprintf(coords_file, "%.10g\t%.10g\t%.10g\n", rx[i], ry[i], rz[i]);
 
     printf("Done! Final Temp. T = %f K\n", T);
     fclose(coords_file);
-   
-	
+
+    
 }
 
 inline double edist(double x, double y, double z)

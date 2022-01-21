@@ -9,7 +9,7 @@ int main()
     
     
     //Allocate x and position inital coordinates randomly on spherical shell
-    int N=5;
+    int N=12;
     int n_eff = DM*N;
     double *x;
     x = (double *)malloc(n_eff*sizeof(double));
@@ -84,7 +84,7 @@ void thomson_gdbb(double *x, int N)
        
 
         daddvec(x_pre, f, -gamma, x, n_eff);   
-         for(int i=0; i<N; i++)
+        for(int i=0; i<N; i++)
             printf("%f\t%f\t%f\n", x[i*DM], x[i*DM+1], x[i*DM + 2]);
          printf("\n\n");
        //break;

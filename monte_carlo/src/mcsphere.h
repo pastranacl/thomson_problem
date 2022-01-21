@@ -19,4 +19,9 @@
 
 
 void sphere(double *rx, double *ry, double *rz, double *E, double R, int N, int MC_STEPS);
-inline double edist(double x, double y, double z);
+
+
+inline double edist(double x, double y, double z)
+{
+    return x*x + y*y + z*z; 
+}

@@ -207,7 +207,4 @@ void sphere(double *rx, double *ry, double *rz, double *E, double R, int N, int 
     
 }
 
-inline double edist(double x, double y, double z)
-{
-    return x*x + y*y + z*z; 
-}
+

@@ -3,9 +3,7 @@
 
 
 ## Description
-These programs use two different strategies to extract an homogeneous distribution of particles on a spherical shell, providing solutions to the the so-called Thomson's problem. Two different minimisation algorithms:
-1. Monte Carlo minimisation routine with simulated annealing
-2. Gradient descendent using Barzilai-Borwain's update rule 
+These programs use two different strategies to extract an homogeneous distribution of particles on a spherical shell, providing solutions to the the so-called Thomson's problem. 
 
 
 ## Compilation

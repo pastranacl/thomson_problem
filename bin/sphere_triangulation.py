@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial import ConvexHull
 
-SPHERE_COORD_FNAME = "rsphere_eq.dat"
-MESH_FNAME = "mesh.dat"
 
 
 # Triangulation and data saving
@@ -16,13 +14,13 @@ def sphere_delaunay(r_sphere):
     hull = ConvexHull(r_sphere)
     indices = hull.simplices
 
-    ntri = indices.size/3
-    tri = np.zeros((ntri, 3), dtype = int)
+    ntri = indices.size//3
+    tri = np.zeros((ntri, 3))
 
     for i in range(0,ntri):
         tri[i,:] = indices[i] 
 
-    np.savetxt(MESH_FNAME, tri.astype(int), fmt='%i', delimiter="\t")
+    return tri
 
 
 # Reppresentation of hte data
@@ -45,8 +43,7 @@ def sphere_plot(r0, tri):
 
 # Calculates the coordination number
 def topo_defects(r0, tri):
-    tri = np.loadtxt(MESH_FNAME, delimiter="\t") 
-    r0 = np.loadtxt(SPHERE_COORD_FNAME, delimiter="\t") 
+
     N_tri = len(tri)
     Np = len(r0)
     cn = np.zeros(Np)
@@ -70,15 +67,13 @@ def topo_defects(r0, tri):
     topology = [n5, n7, n5 - n7]
     return topology	
 
-    print "Five-fold defects: " + str(n5)
-    print "Seven-fold defects: " + str(n7)
+    print("Five-fold defects: " + str(n5))
+    print("Seven-fold defects: " + str(n7))
 
 
 
 # Calculate the area of each a triangle and the resulting dispersion in area
 def area_variability(r0, tri):
-    tri = np.loadtxt(MESH_FNAME, delimiter="\t") 
-    r0 = np.loadtxt(SPHERE_COORD_FNAME, delimiter="\t") 
     N_tri = len(tri)
     areas = np.zeros(N_tri)
     for t in range(0, N_tri):
@@ -137,28 +132,58 @@ def check_orient(r0, tri):
 
 
 if __name__ == "__main__":
-        
+    
+    SPHERE_COORD_FNAME = "rsphere_eq.dat"
+    MESH_FNAME = "mesh.dat"
+    
     r0 = np.loadtxt(SPHERE_COORD_FNAME, delimiter="\t") # Coordinates minim
-    sphere_delaunay(r0)
-    tri = np.loadtxt(MESH_FNAME, delimiter="\t") # Triangles
-
+    tri = sphere_delaunay(r0)
+    np.savetxt(MESH_FNAME, tri.astype(int), fmt='%i', delimiter="\t")
 
     topolgy = topo_defects(r0, tri)
     relserr = area_variability(r0, tri)
     oriented = check_orient(r0, tri)
 
-    print "Five-fold defects, n5 = " + str(topolgy[0])
-    print "Seven-fold defects, n7 = " + str(topolgy[1])
-    print "Total topological charge, q = " + str(topolgy[2])
-    print "Triangle area variability = " + str(relserr*100) + "%"
+    print("Five-fold defects, n5 = " + str(topolgy[0]))
+    print("Seven-fold defects, n7 = " + str(topolgy[1]))
+    print("Total topological charge, q = " + str(topolgy[2]) )
+    print("Triangle area variability = " + str(relserr*100) + "%")
     
     if oriented == 0:
-        print "Surface initially not oriented. Corrected."
+        print("Surface initially not oriented. Corrected.")
     else:
-        print "Surface is oriented"
+        print("Surface is oriented")
         
     if( topolgy[2] != 12 or relserr > 0.05):
-        print "Recommended increase in the number of Monte Carlo steps "
-    sphere_plot(r0,tri)
+        print("Recommended increase in the number of Monte Carlo steps ")
+    #sphere_plot(r0,tri)
+    r0 = np.loadtxt(SPHERE_COORD_FNAME, delimiter="\t") # Coordinates minim
+    tri = np.loadtxt(MESH_FNAME, delimiter="\t") # Triangles
+    nv = np.zeros((len(tri), 3))
+    cm_tri = np.zeros((len(tri), 3))
+    for t in range(0, len(tri)):
+        v1= int(tri[t,0])
+        v2= int(tri[t,1])
+        v3= int(tri[t,2])
+        r21 = r0[v2,:]-r0[v3,:]
+        r31 = r0[v3,:]-r0[v1,:]
+        nv[t,:] = np.cross(r21,r31);
+        nv[t,:] /= np.linalg.norm(nv[t,:])
+        cm_tri[t,:] = (r0[v1,:] + r0[v2,:]+ r0[v3,:])/3
+        
+    # Plot
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    ax.plot_trisurf(r0[:,0],
+                    r0[:,1], 
+                    r0[:,2],
+                    triangles=tri, 
+                    color=(0.5,0.5,0.5,1.0), 
+                    edgecolor=(0.0,0.0,0.0, 1.0),
+                    linewidth=0.2,
+                    antialiased=True,
+                    shade=False)
 
-
+    ax.quiver(cm_tri[:,0], cm_tri[:,1], cm_tri[:,2],
+                -nv[:,0],     -nv[:,1],     -nv[:,2], length=0.2, arrow_length_ratio=0.2, color='red')
+    plt.show()

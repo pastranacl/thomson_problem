@@ -46,9 +46,6 @@ int main(int argc, char *argv[])
     int N = atoi(argv[1]);                    /* Number of particles */
     int MCSTEPS = atoi(argv[2]);              /* Number of Monte Carlo steps */
     
-    
-    
-    
     rx = (double *)malloc(N*sizeof(double*)); 
     ry = (double *)malloc(N*sizeof(double*));
     rz = (double *)malloc(N*sizeof(double*));
@@ -142,7 +139,6 @@ void sphere(double *rx, double *ry, double *rz, double *E, double R, int N, int 
         rx[tp] = R*sin(polar[tp])*cos(azi[tp]);
         ry[tp] = R*sin(polar[tp])*sin(azi[tp]);
         rz[tp] = R*cos(polar[tp]);
-        
         
 
         /* Calculates the energy of the new configuration */

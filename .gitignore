@@ -11,5 +11,9 @@ bin/mcsphere
 # Gradient
 */bin/*/*.xyz
 
+*/docs/*.log
+*/docs/*.aux
+*/docs/*.tex
+*/docs/*.gz
 
 

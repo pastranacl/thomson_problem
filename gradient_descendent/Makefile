@@ -12,7 +12,7 @@ SRCS := $(wildcard ${SRC_PATH}/*.c)
 comp:
 	@clear
 	@echo -n "Compiling... "
-	@${CC} ${SRCS} ${FLAGS} -o ${BIN_PATH}/mcthomson
+	@${CC} ${SRCS} ${FLAGS} -o ${BIN_PATH}/mcsphere
 	@echo "Done!"
 
 

@@ -7,6 +7,9 @@
 
 #define PI              3.141592653589793238462643383279502884197169399375105820974944592307816406286
 #define FACT_L0_INIT    5.0e-1
+#define GAMMA_0         1.0e-6
+
+
 
 typedef Eigen::Matrix<float, Eigen::Dynamic, 1> VectorXf;
 
@@ -34,6 +37,16 @@ class Particles {
         
 };
 
+
+class Export: public Particles {
+
+    public:
+    private:
+        string fileNameIt(int id);
+    // Export XYZ 
+    // COMBINE STRING
+    // EXPORT OTHER FORMAT
+};
 
 
 inline float Particles::dotSpherical(float phi1, float theta1, 

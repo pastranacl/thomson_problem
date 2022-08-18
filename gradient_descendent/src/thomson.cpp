@@ -1,6 +1,6 @@
 #include "thomson.hpp"
 
-#include<iostream>
+
 
 Particles::Particles(int N, float R)
 { 
@@ -61,7 +61,7 @@ void Particles::minimise(int maxits, double gtol)
     calcGradient(grad);
     rSpherical_pre = rSpherical;
     grad_pre = grad;
-    rSpherical -= 1.0e-6*grad;
+    rSpherical -= GAMMA_0*grad;
     
         
     // Iterative minimisations
@@ -161,7 +161,10 @@ VectorXf Particles::getCartesian()
 }
 
 
-void  Particles::exportXYZfile(std::string fileName)
+
+
+
+void  Export::exportXYZfile(std::string fileName)
 {
     std::ofstream fid;
     fid.open(fileName);

@@ -1,4 +1,15 @@
-src/*.dat
-bin/*.dat
+*/src/*.dat
+*/bin/*.dat
+
+
+*/*.sh
+
+
+# Monte-Carlo
 bin/mcsphere
+
+# Gradient
+*/bin/*/*.xyz
+
+
 

@@ -103,13 +103,15 @@ void Particles::calcGradient(VectorXf& grad)
     grad.setZero();
     #pragma omp parallel for 
     for(int i=0; i<N; i++) {
+        
+        float phi1, theta1;
+        phi1 = rSpherical(i*2);
+        theta1 = rSpherical(i*2+1);
         for(int j=0; j<N; j++) {
             if(i==j) continue;
             
-            float phi1, phi2, theta1, theta2;
-            phi1 = rSpherical(i*2);
+            float phi2, theta2;
             phi2 = rSpherical(j*2);
-            theta1 = rSpherical(i*2+1);
             theta2 = rSpherical(j*2+1);
             
             float dotp, alpha, pref;

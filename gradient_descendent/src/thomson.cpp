@@ -1,7 +1,35 @@
+/***************************************************************************
+  thomson: Generates a homogeneous distribution of particles on a spherical 
+           surface using gradient minimisation
+
+    Copyright (C) Cesar L. Pastrana, 2022
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+***************************************************************************/
+
 #include "thomson.hpp"
 
 
 
+/**************************************************************************
+*
+* Particles: Particles constructor
+* 
+* Input:        N = Number of particles
+*               R = Radius of the spherical surface
+**************************************************************************/
 Particles::Particles(int N, float R)
 { 
     rSpherical.resize(N*2); 
@@ -12,6 +40,21 @@ Particles::Particles(int N, float R)
 }
 
 
+/**************************************************************************
+*
+* setInitialConfiguration: Minimise the repulsion energy between points by 
+* using the Barzilai-Borwain's gradient descendent implementation.
+* 
+* Input:        maxits = Maximum number of iterations
+*               gtol   = Tolerance (norm of the gradient vector) to stop 
+*                        the evaluation
+* 
+*--------------------------------------------------------------------------
+*
+*  Ouput: The gradient along the phi and theta directions by considering
+*         a Coulombic repulstion between particles
+*
+**************************************************************************/
 void Particles::setInitialConfiguration()
 {
     int np=0;
@@ -41,12 +84,36 @@ void Particles::setInitialConfiguration()
     } while(np<N);
 }
 
+/**************************************************************************
+*
+* bondLength: Characteristic length between particles in the unit sphere
+* 
+*--------------------------------------------------------------------------
+*
+*  Ouput: Characteristic length between particles in the unit sphere
+*
+**************************************************************************/
 double Particles::bondLength()
 {
     return sqrt(8.0*PI/((N-2)*sqrt(3.0)) );
 }
 
 
+/**************************************************************************
+*
+* minimise: Minimise the repulsion energy between points by using the 
+* Barzilai-Borwain's gradient descendent implementation.
+* 
+* Input:        maxits = Maximum number of iterations
+*               gtol   = Tolerance (norm of the gradient vector) to stop 
+*                        the evaluation
+* 
+*--------------------------------------------------------------------------
+*
+*  Ouput: The gradient along the phi and theta directions by considering
+*         a Coulombic repulstion between particles
+*
+**************************************************************************/
 void Particles::minimise(int maxits, double gtol)
 {
     
@@ -98,6 +165,15 @@ void Particles::minimise(int maxits, double gtol)
 }
 
 
+/**************************************************************************
+*
+* calcGradient: Check if the input vector has any infinite value
+*--------------------------------------------------------------------------
+*
+*  Ouput: The gradient along the phi and theta directions by considering
+*         a Coulombic repulstion between particles
+*
+**************************************************************************/
 void Particles::calcGradient(VectorXf& grad)
 {
     grad.setZero();
@@ -135,6 +211,15 @@ void Particles::calcGradient(VectorXf& grad)
     }
 }
 
+
+/**************************************************************************
+*
+* gradInf: Check if the input vector has any infinite value
+*--------------------------------------------------------------------------
+*
+*  Ouput: false if no Inf values found
+*
+**************************************************************************/
 bool Particles::gradInf(VectorXf& grad)
 {
     for(int i=0;i<N; i++){
@@ -147,7 +232,14 @@ bool Particles::gradInf(VectorXf& grad)
     return false;
 }
 
-
+/**************************************************************************
+*
+* getCartesian: Converts the spherical coordiantes to cartesian (privat)
+*--------------------------------------------------------------------------
+*
+*  Ouput: Updates the protected function rCartesian and returns the value
+*
+**************************************************************************/
 VectorXf Particles::getCartesian()
 {
     for(int i=0;i<N; i++)

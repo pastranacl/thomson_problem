@@ -1,18 +1,18 @@
-# Cesar L. Pastrana, 2021
+# Cesar L. Pastrana, 2022
 
-CC := gcc
+CC := g++
 FLAGS := -std=c99 -lm --fast-math -fopenmp -O3
-
+LIBS := -I /usr/include/eigen3
 BIN_PATH := ./bin
 SRC_PATH := ./src
 
-SRCS := $(wildcard ${SRC_PATH}/*.c)
+SRCS := $(wildcard ${SRC_PATH}/*.cpp)
 
 
 comp:
 	@clear
 	@echo -n "Compiling... "
-	@${CC} ${SRCS} ${FLAGS} -o ${BIN_PATH}/mcsphere
+	@${CC} ${SRCS} ${FLAGS} -o ${BIN_PATH}/thomson
 	@echo "Done!"
 
 

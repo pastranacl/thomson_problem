@@ -7,7 +7,7 @@ This repository shows minimisation via Monte Carlo or gradient descendent minimi
 
 
 ## Compilation
-Simply call `make` on the main folder. of each project.
+Simply call `make` on the main folder of each project.
 
 
 ## Execution

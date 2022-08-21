@@ -58,7 +58,7 @@ class Particles {
         bool vecNanOrInf(VectorXf& v);
         inline float dotSpherical(float phi1, float theta1, 
                                   float phi2, float theta2);
-        inline float rand_zero2Val(float max_val);
+        inline float randInterval(float min_val, float max_val);
 };
 
 
@@ -106,7 +106,7 @@ inline float Particles::dotSpherical(float phi1, float theta1,
 
 /**************************************************************************
 *
-* rand_zero2Val: Generates random numbers between 0 and max_val
+* rand_zero2Val: Generates random numbers between min_val and max_val
 * 
 * Input:        max_val   =  Maximum value of the random numbers interval
 * 
@@ -115,9 +115,9 @@ inline float Particles::dotSpherical(float phi1, float theta1,
 *  Ouput: Random number in the specified interval
 *
 **************************************************************************/
-inline float Particles::rand_zero2Val(float max_val)
+inline float Particles::randInterval(float min_val, float max_val)
 {
-    return static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(max_val)));
+    return min_val + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(max_val)));
 } 
 
 

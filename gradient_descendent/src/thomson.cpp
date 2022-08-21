@@ -59,16 +59,16 @@ void Particles::setInitialConfiguration()
 {
     int np=0;
     double l0Char = FACT_L0_INIT*lb;
-    
+    float polar0 = 0.5*lb;
     srand (time(NULL));
-    rSpherical(0) = rand_zero2Val(2.0*PI);
-    rSpherical(1) = rand_zero2Val(PI);
+    rSpherical(0) = randInterval(0.0, 2.0*PI);
+    rSpherical(1) = randInterval(polar0, PI-polar0);
     
     np=1;
     do {
         
-        rSpherical(np*2)   = rand_zero2Val(2.0*PI);
-        rSpherical(np*2+1) = rand_zero2Val(PI);
+        rSpherical(np*2)   = randInterval(0.0, 2.0*PI);
+        rSpherical(np*2+1) = randInterval(polar0, PI-polar0);
         
         float td;
         for(int i=0; i<np; i++) {

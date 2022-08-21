@@ -68,7 +68,7 @@ void Particles::setInitialConfiguration()
     do {
         
         rSpherical(np*2)   = randInterval(0.0, 2.0*PI);
-        rSpherical(np*2+1) = randInterval(polar0, PI-polar0);
+        rSpherical(np*2+1) = acos(randInterval(-1.0, 2.0)); 
         
         float td;
         for(int i=0; i<np; i++) {
@@ -200,6 +200,7 @@ void Particles::calcGradient(VectorXf& grad)
             dotp = dotSpherical(phi1, theta1, phi2, theta2);
             alpha = acos(dotp);
             pref = 1.0/(alpha*alpha*sqrt(1-dotp*dotp));
+            
             
             sinTh2cosPh2 = sin(theta2)*cos(phi2);
             sinTh2sinPh2 = sin(theta2)*sin(phi2);

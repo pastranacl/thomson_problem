@@ -10,6 +10,7 @@ bin/mcsphere
 
 # Gradient
 */bin/*/*.xyz
+*/bin/*/*.vtu
 
 */docs/*.log
 */docs/*.aux

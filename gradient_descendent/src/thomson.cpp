@@ -18,7 +18,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ***************************************************************************/
-
 #include "thomson.hpp"
 
 
@@ -36,6 +35,7 @@ Particles::Particles(int N, float R)
     rCartesian.resize(N*2); 
     this->R = R;
     this->N = N; // Equivalent to Particles::N = N
+    lb = bondLength();
     setInitialConfiguration();
 }
 
@@ -58,7 +58,7 @@ Particles::Particles(int N, float R)
 void Particles::setInitialConfiguration()
 {
     int np=0;
-    double l0Char = FACT_L0_INIT*bondLength();
+    double l0Char = FACT_L0_INIT*lb;
     
     srand (time(NULL));
     rSpherical(0) = rand_zero2Val(2.0*PI);
@@ -114,7 +114,7 @@ double Particles::bondLength()
 *         a Coulombic repulstion between particles
 *
 **************************************************************************/
-void Particles::minimise(int maxits, double gtol)
+void Particles::minimise(int maxits, double gtol, bool saveIts)
 {
     
     VectorXf rSpherical_pre(N*2);
@@ -130,18 +130,21 @@ void Particles::minimise(int maxits, double gtol)
     grad_pre = grad;
     rSpherical -= GAMMA_0*grad;
     
-        
+    Export dump(this, "./output/");
+    
+    
     // Iterative minimisations
     for(int i=0; i<maxits; i++) {
-        float gamma;
+        
         // Calculate gradient 
         calcGradient(grad);
-        if(gradInf(grad)) break;
+        if(vecNanOrInf(grad)) break;
             
         // Calculate damping factor
         Dr = rSpherical - rSpherical_pre;
         Dgrad = grad - grad_pre;
-        gamma = abs(Dr.dot(Dgrad))/Dgrad.squaredNorm();
+        
+        float gamma = abs(Dr.dot(Dgrad))/Dgrad.squaredNorm();
        
         rSpherical_pre = rSpherical;
         grad_pre = grad;
@@ -149,17 +152,19 @@ void Particles::minimise(int maxits, double gtol)
         // Move
         rSpherical -= gamma*grad;
         
+        if(vecNanOrInf(rSpherical)) {
+            rSpherical = rSpherical_pre;
+            break;
+        }
 
         // Scape
         if(grad.norm()<gtol)
             break;
 
         
-        //
-        std::stringstream ss;
-        ss << "./output/" << i << "_file.xyz";
-        std::string fname = ss.str();
-        exportXYZfile(fname);
+        // Save snapshots if applicable
+        if(saveIts) 
+            dump.exportVTU(dump.getItfileName(i, "sphere"));
     }
     
 }
@@ -220,12 +225,12 @@ void Particles::calcGradient(VectorXf& grad)
 *  Ouput: false if no Inf values found
 *
 **************************************************************************/
-bool Particles::gradInf(VectorXf& grad)
+bool Particles::vecNanOrInf(VectorXf& v)
 {
     for(int i=0;i<N; i++){
-        if(isinf(grad(i*2)) )
+        if(isinf(v(i*2)) || isnan(v(i*2)))
             return true;
-        if(isinf(grad(i*2+1)) )
+        if(isinf(v(i*2+1)) || isnan(v(i*2+1)))
             return true;
     }
     
@@ -256,19 +261,133 @@ VectorXf Particles::getCartesian()
 
 
 
+/**************************************************************************
+*
+* Export constructor
+* 
+* Input: particles = Class to save the Data
+*        outPath   = Path to save the data
+* 
+**************************************************************************/
+Export::Export(Particles *particles, std::string outPath)
+{ 
+    this->particles = particles;
+    this->outPath = outPath;
+}
 
 
-void  Export::exportXYZfile(std::string fileName)
+/**************************************************************************
+*
+* exportVTU: Exports the data to an VTK XML UnstructuredGrid, such that 
+*            the point particles can be visualised with ParaView
+*
+*  Input: Name of file
+*
+**************************************************************************/
+void Export::exportVTU(std::string fileName)
 {
     std::ofstream fid;
-    fid.open(fileName);
-    fid << N << std::endl << std::endl;
-    for(int i=0; i<N; i++) {
-        double phi   = rSpherical(2*i),
-               theta = rSpherical(2*i+1);
-        fid << R*sin(theta)*cos(phi) << "\t"
-                    << R*sin(theta)*sin(phi) << "\t" 
-                    << R*cos(theta) << std::endl;
+    fid.open(outPath + fileName + ".vtu");
+    
+    double d = 2.0*particles->R*particles->lb;
+
+    fid << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\">" << std::endl;
+    fid << "  <UnstructuredGrid>" << std::endl;
+    fid << "    <Piece NumberOfPoints=\"" << particles->N << "\" NumberOfCells=\"0\">" << std::endl;
+    fid << "      <Points>" << std::endl;
+    fid << "        <DataArray name=\"Position\" type=\"Float32\" NumberOfComponents=\"3\" format=\"ascii\">" << std::endl;
+    fid << "        ";
+    for(int i=0; i<particles->N; i++) {
+        float phi   = particles->rSpherical(2*i), theta = particles->rSpherical(2*i+1);
+        fid << particles->R*sin(theta)*cos(phi) << " "
+            << particles->R*sin(theta)*sin(phi) << " " 
+            << particles->R*cos(theta) << " ";
+    }
+    fid << std::endl;
+    fid << "        </DataArray>" << std::endl;
+    fid << "      </Points>" << std::endl;
+    fid << "      <PointData>" << std::endl;
+    fid << "        <DataArray type=\"Float32\" Name=\"Diameter\" format=\"ascii\">" << std::endl; 
+    fid << "        ";
+    for(int i=0; i<particles->N; i++)     fid << d << " "; fid << std::endl;
+    fid << "        </DataArray>" << std::endl;
+    fid << "      </PointData>" << std::endl;
+    fid << "      <Cells>" << std::endl;
+    fid <<"         <DataArray type=\"Int32\" Name=\"connectivity\" format=\"ascii\">" << std::endl;
+    fid <<"         </DataArray>" << std::endl;
+    fid <<"         <DataArray type=\"Int32\" Name=\"offsets\" format=\"ascii\">" << std::endl;
+    fid <<"         </DataArray>" << std::endl;
+    fid <<"         <DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">" << std::endl;
+    fid <<"         </DataArray>" << std::endl;
+    fid <<"       </Cells>" << std::endl;
+    fid << "    </Piece>" << std::endl;
+    fid << "  </UnstructuredGrid>" << std::endl;
+    fid << "</VTKFile>";
+    fid.close();
+}
+
+/**************************************************************************
+*
+* exportXYZ: Exports the data to XYZ file. Simple file, allow simple 
+*            visualisation with Ovito
+*
+*  Input:     fileName =  Name of the file
+*
+**************************************************************************/
+void Export::exportXYZ(std::string fileName)
+{
+    std::ofstream fid;
+    fid.open(outPath + fileName + ".xyz");
+    fid << particles->N << std::endl << std::endl;
+    for(int i=0; i<particles->N; i++) {
+        float phi   = particles->rSpherical(2*i),  theta = particles->rSpherical(2*i+1);
+        fid << particles->R*sin(theta)*cos(phi) << "\t"
+            << particles->R*sin(theta)*sin(phi) << "\t" 
+            << particles->R*cos(theta) << std::endl;
     }
     fid.close();
+}
+
+
+/**************************************************************************
+*
+* exportDAT: Exports the data to XYZ file. Simplest file
+*
+*  Input:   fileName =  Name of the file
+*
+**************************************************************************/
+void Export::exportDAT(std::string fileName)
+{
+    std::ofstream fid;
+    fid.open(outPath + fileName + ".dat");
+    for(int i=0; i<particles->N; i++) {
+        float phi   = particles->rSpherical(2*i),  theta = particles->rSpherical(2*i+1);
+        fid << particles->R*sin(theta)*cos(phi) << "\t"
+            << particles->R*sin(theta)*sin(phi) << "\t" 
+            << particles->R*cos(theta) << std::endl;
+    }
+    fid.close();
+}
+
+
+
+
+/**************************************************************************
+*
+* getItfileName: Genrates full filename for the minimisation iterations
+*
+*  Input:        it = Integer preceeding the main name
+*                fileName = Main name
+* 
+*--------------------------------------------------------------------------
+* Output:        fullName = String including the full path and the it, e.g.
+*                           ./path/1_file_name
+* 
+**************************************************************************/
+std::string Export::getItfileName(int it, std::string fileName)
+{
+    std::stringstream ss;
+    ss << it << "_" << fileName;
+    std::string fullName = ss.str();
+    return fullName;    
 }

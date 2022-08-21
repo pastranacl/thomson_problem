@@ -39,44 +39,46 @@ typedef Eigen::Matrix<float, Eigen::Dynamic, 1> VectorXf;
  
 class Particles {
     public:
+        Particles(int N, float R);
         VectorXf rSpherical; // if we knew the size in advance: rSpherical(n)
         float R;
         int N;
-        
-        Particles(int N, float R);
-        void minimise(int maxits, double tol);
+        float lb;
+       
+        void minimise(int maxits, double tol, bool saveIts = true);
         void calcGradient(VectorXf& grad);
-        void exportXYZfile(std::string fileName);
         VectorXf getCartesian();
     
     protected:
         VectorXf rCartesian;
         double bondLength();
+        
     private:
         void setInitialConfiguration();
-        bool gradInf(VectorXf& grad);
+        bool vecNanOrInf(VectorXf& v);
         inline float dotSpherical(float phi1, float theta1, 
                                   float phi2, float theta2);
         inline float rand_zero2Val(float max_val);
-        
 };
 
 
-class Export: public Particles {
+
+
+class Export{
 
     public:
+        Export(Particles *particles, std::string outPath);
         std::string outPath;
-        Export(std::string outPath);
+        Particles *particles;
+        void exportXYZ(std::string fileName);
+        void exportVTU(std::string fileName);
+        void exportDAT(std::string fileName);
+        std::string getItfileName(int it, std::string fileName);
         
-        exportXYZfile(std::string fileName)
     private:
         std::string fileNameIt(int id);
-        
-        std::
-    // Export XYZ 
-    // COMBINE STRING
-    // EXPORT OTHER FORMAT
 };
+
 
 /**************************************************************************
 *
@@ -100,6 +102,7 @@ inline float Particles::dotSpherical(float phi1, float theta1,
     prodSinTheta = sin(theta1)*sin(theta2);
     return prodSinTheta*cos(phi1)*cos(phi2) + prodSinTheta*sin(phi1)*sin(phi2) + cos(theta1)*cos(theta2);
 }
+
 
 /**************************************************************************
 *

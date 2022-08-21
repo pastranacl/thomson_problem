@@ -164,7 +164,7 @@ void Particles::minimise(int maxits, double gtol, bool saveIts)
         
         // Save snapshots if applicable
         if(saveIts) 
-            dump.exportVTU(dump.getItfileName(i, "sphere"));
+            dump.exportXYZ(dump.getItfileName(i, "sphere"));
     }
     
 }

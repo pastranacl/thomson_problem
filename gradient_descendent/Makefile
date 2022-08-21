@@ -1,7 +1,7 @@
 # Cesar L. Pastrana, 2022
 
 CC := g++
-FLAGS := -std=c++11 -lm --fast-math -fopenmp -O3
+FLAGS := -std=c++11 -lm -fopenmp -O3
 LIBS := -I /usr/include/eigen3
 BIN_PATH := ./bin
 SRC_PATH := ./src

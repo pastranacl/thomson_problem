@@ -14,7 +14,7 @@ int main()
     Particles surface(N, R);
     surface.minimise(100, 1.0e-6);
     Export dump(&surface, "./output/");
-    dump.exportVTU("sphere_minimised");
+    dump.exportXYZ("sphere_minimised");
     return 0;
 }
 

@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     double R = atof(argv[2]);              /* Radius */
     
     std::cout << "Minimising... ";
-    Particles surface(N, R);
+    Particles surface(N, R, "fibonacci");
     surface.minimise(100, 1.0e-6);
     Export dump(&surface, "./");
     dump.exportDAT("rsphere_eq");

@@ -18,6 +18,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ***************************************************************************/
+#include <iostream>
 #include <fstream>     /* ofstream */
 #include <math.h>
 #include <sstream>
@@ -39,7 +40,7 @@ typedef Eigen::Matrix<float, Eigen::Dynamic, 1> VectorXf;
  
 class Particles {
     public:
-        Particles(int N, float R);
+        Particles(int N, float R, std::string initProcedure = "random");
         VectorXf rSpherical; // if we knew the size in advance: rSpherical(n)
         float R;
         int N;
@@ -54,7 +55,8 @@ class Particles {
         double bondLength();
         
     private:
-        void setInitialConfiguration();
+        void setInitialConfiguration_Random();
+        void setInitialConfiguration_Fibonacci();
         bool vecNanOrInf(VectorXf& v);
         inline float dotSpherical(float phi1, float theta1, 
                                   float phi2, float theta2);
@@ -78,6 +80,9 @@ class Export{
     private:
         std::string fileNameIt(int id);
 };
+
+
+
 
 
 /**************************************************************************

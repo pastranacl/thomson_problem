@@ -29,33 +29,37 @@
 * Input:        N = Number of particles
 *               R = Radius of the spherical surface
 **************************************************************************/
-Particles::Particles(int N, float R)
+Particles::Particles(int N, float R, std::string initProcedure)
 { 
     rSpherical.resize(N*2); 
     rCartesian.resize(N*2); 
     this->R = R;
     this->N = N; // Equivalent to Particles::N = N
     lb = bondLength();
-    setInitialConfiguration();
+    
+    if(initProcedure=="random")
+        setInitialConfiguration_Random();
+    else if(initProcedure=="fibonacci")
+        setInitialConfiguration_Fibonacci();
+    else if (initProcedure !="fibonacci" && initProcedure !="random") {
+        std::cout << "Not valid initialisation procedure. Random initialisation selected." <<  std::endl;
+        setInitialConfiguration_Random();
+    }
 }
 
 
 /**************************************************************************
 *
-* setInitialConfiguration: Minimise the repulsion energy between points by 
-* using the Barzilai-Borwain's gradient descendent implementation.
-* 
-* Input:        maxits = Maximum number of iterations
-*               gtol   = Tolerance (norm of the gradient vector) to stop 
-*                        the evaluation
+* setInitialConfiguration: Position particles on the sphere following a 
+* random scheme for phi and theta angles. The procedure take care of not
+* allowing particles in close vicinity.
 * 
 *--------------------------------------------------------------------------
 *
-*  Ouput: The gradient along the phi and theta directions by considering
-*         a Coulombic repulstion between particles
+*  Ouput: phi and theta coordinates for every particle
 *
 **************************************************************************/
-void Particles::setInitialConfiguration()
+void Particles::setInitialConfiguration_Random()
 {
     int np=0;
     double l0Char = FACT_L0_INIT*lb;
@@ -83,6 +87,42 @@ void Particles::setInitialConfiguration()
         
     } while(np<N);
 }
+
+
+
+/**************************************************************************
+*
+* setInitialConfiguration_Fibonacci: Position particles on the sphere
+* following a Fibonacci lattice spacing
+* 
+*--------------------------------------------------------------------------
+*
+*  Ouput: phi and theta coordinates for every particle
+*
+**************************************************************************/
+void Particles::setInitialConfiguration_Fibonacci()
+{
+    const double GOLDEN_RATIO = (1.0 + sqrt(5.))/2.0;
+    
+    /*
+    Export dump(this, "./fibonacci/");
+    for(int i=0; i<N; i++) {
+        rSpherical(i*2)   = 0;
+        rSpherical(i*2+1) = acos(1.0 - 2.0*(0.5)/N);;
+    }
+    */
+    
+    for(int i=0; i<N; i++) {
+        float phi = 2.0*PI*i/GOLDEN_RATIO;
+        float theta = acos(1.0 - 2.0*(i+0.5)/N);
+        rSpherical(i*2)   = phi;
+        rSpherical(i*2+1) = theta;
+        //dump.exportXYZ(dump.getItfileName(i, "fibonacci"));
+    }
+} 
+
+
+
 
 /**************************************************************************
 *

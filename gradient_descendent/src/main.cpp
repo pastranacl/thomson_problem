@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
     
     Particles surface(N, R, "random");
     
-    Import importer(&surface, "./");
-    importer.importXYZ("init_coords.xyz");
+    //Import importer(&surface, "./");
+    //importer.importXYZ("init_coords.xyz");
     
     surface.minimise(100, 1.0e-6);
     

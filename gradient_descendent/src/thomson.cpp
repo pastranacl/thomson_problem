@@ -301,6 +301,9 @@ VectorXf Particles::getCartesian()
 
 
 
+
+
+
 /**************************************************************************
 *
 * Export constructor
@@ -410,11 +413,9 @@ void Export::exportDAT(std::string fileName)
 }
 
 
-
-
 /**************************************************************************
 *
-* getItfileName: Genrates full filename for the minimisation iterations
+* getItfileName: Generates full filename for the minimisation iterations
 *
 *  Input:        it = Integer preceeding the main name
 *                fileName = Main name
@@ -434,6 +435,17 @@ std::string Export::getItfileName(int it, std::string fileName)
 
 
 
+
+
+
+/**************************************************************************
+*
+* Import: Constructor to import data from file
+*
+*  Input:       particles = Pointer to a Particles object
+*               inPath = Path where are the coordinate files
+* 
+**************************************************************************/
 Import::Import(Particles *particles, std::string inPath) 
 {
     this->inPath = inPath;
@@ -441,6 +453,18 @@ Import::Import(Particles *particles, std::string inPath)
 }
 
 
+
+/**************************************************************************
+*
+* importDAT:  Imports a DAT file with the coordinates expressed in
+*             Cartesian coordinates
+*
+*  Input:       fileName = Name of the file to import
+* 
+*--------------------------------------------------------------------------
+* Output:       Updates the particle class called in the constructor
+* 
+**************************************************************************/
 void Import::importDAT(std::string fileName) 
 {
     
@@ -499,7 +523,17 @@ void Import::importDAT(std::string fileName)
 }
 
 
-
+/**************************************************************************
+*
+* importXYZ:  Imports a XYZ file with the coordinates expressed in
+*             Cartesian coordinates
+*
+*  Input:       fileName = Name of the file to import
+* 
+*--------------------------------------------------------------------------
+* Output:       Updates the particle class called in the constructor
+* 
+**************************************************************************/
 void Import::importXYZ(std::string fileName) 
 {
     

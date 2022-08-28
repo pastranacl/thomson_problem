@@ -24,8 +24,8 @@
 #include <sstream>
 #include <string>
 #include <stdlib.h>     /* srand, rand */
-#include "Eigen/Dense"
-#include "Eigen/Core"   /*for seq*/
+#include <Eigen/Dense>
+#include <Eigen/Core>   /*for seq*/
 
 #ifndef THOMSON
 #define THOMSON
@@ -93,6 +93,9 @@ class Import {
         void importDAT(std::string fileName);
 };
  
+
+
+
 
 /**************************************************************************
 *

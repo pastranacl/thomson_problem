@@ -5,7 +5,7 @@
 This code implements a gradient-descendent routine to extract an homogeneous distribution of particles on a spherical shell. This provides solutions to the the so-called Thomson's problem. 
 
 ## Compilation
-Simply call `make` on the main folder. This program requires the Eigen library to be installed in your system. For the best performance, ensure OpenMP is available.
+Simply call `make` on the main folder. This program requires the Eigen (version 3.4) library to be installed in your system. For the best performance, ensure OpenMP is available.
 
 ## Execution
 To execute the program call the script `exec_thomson.sh N R` where `N` is the number of particles on the spherical shell and `R` is spherical radius. 

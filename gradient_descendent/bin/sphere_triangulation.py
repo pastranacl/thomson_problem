@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial import ConvexHull
-
+from numba import jit
 
 
 # Triangulation and data saving
@@ -42,6 +42,7 @@ def sphere_plot(r0, tri):
 
 
 # Calculates the coordination number
+@jit
 def topo_defects(r0, tri):
 
     N_tri = len(tri)
@@ -58,21 +59,24 @@ def topo_defects(r0, tri):
     # Five-fold and seven fold defects
     n5=0
     n7=0
+    q=0
     for i in range(0,Np):
         if cn[i] == 5:
             n5 += 1
         if cn[i] == 7:
             n7 += 1
+        q += 6-cn[i]
+    q=int(q)
+    topology = [n5, n7, q]
+    
+    return topology
 
-    topology = [n5, n7, n5 - n7]
-    return topology	
 
-    print("Five-fold defects: " + str(n5))
-    print("Seven-fold defects: " + str(n7))
 
 
 
 # Calculate the area of each a triangle and the resulting dispersion in area
+@jit
 def area_variability(r0, tri):
     N_tri = len(tri)
     areas = np.zeros(N_tri)

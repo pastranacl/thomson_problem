@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial import ConvexHull
-
+from numba import jit
 
 
 # Triangulation and data saving
@@ -42,6 +42,7 @@ def sphere_plot(r0, tri):
 
 
 # Calculates the coordination number
+@jit
 def topo_defects(r0, tri):
 
     N_tri = len(tri)
@@ -58,21 +59,24 @@ def topo_defects(r0, tri):
     # Five-fold and seven fold defects
     n5=0
     n7=0
+    q=0
     for i in range(0,Np):
         if cn[i] == 5:
             n5 += 1
         if cn[i] == 7:
             n7 += 1
+        q += 6-cn[i]
+    q=int(q)
+    topology = [n5, n7, q]
+    
+    return topology
 
-    topology = [n5, n7, n5 - n7]
-    return topology	
 
-    print("Five-fold defects: " + str(n5))
-    print("Seven-fold defects: " + str(n7))
 
 
 
 # Calculate the area of each a triangle and the resulting dispersion in area
+@jit
 def area_variability(r0, tri):
     N_tri = len(tri)
     areas = np.zeros(N_tri)
@@ -155,7 +159,7 @@ if __name__ == "__main__":
         print("Surface is oriented")
         
     if( topolgy[2] != 12 or relserr > 0.05):
-        print("Recommended increase in the number of Monte Carlo steps ")
+        print("Recommended increase in the number of Monte Carlo steps.")
     #sphere_plot(r0,tri)
     r0 = np.loadtxt(SPHERE_COORD_FNAME, delimiter="\t") # Coordinates minim
     tri = np.loadtxt(MESH_FNAME, delimiter="\t") # Triangles
@@ -178,11 +182,12 @@ if __name__ == "__main__":
                     r0[:,1], 
                     r0[:,2],
                     triangles=tri, 
-                    color=(0.5,0.5,0.5,1.0), 
+                    color=(0.5,0.5,0.5,0.8), 
                     edgecolor=(0.0,0.0,0.0, 1.0),
                     linewidth=0.2,
                     antialiased=True,
                     shade=False)
 
-    #ax.quiver(cm_tri[:,0], cm_tri[:,1], cm_tri[:,2], -nv[:,0],     -nv[:,1],     -nv[:,2], length=0.2, arrow_length_ratio=0.2, color='red')
+    plt.axis('off')
+    plt.savefig("n" + str(len(r0)) + ".pdf", dpi=100, bbox_inches='tight')
     plt.show()

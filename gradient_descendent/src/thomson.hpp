@@ -24,7 +24,8 @@
 #include <sstream>
 #include <string>
 #include <stdlib.h>     /* srand, rand */
-#include <Eigen/Dense>
+#include "Eigen/Dense"
+#include "Eigen/Core"   /*for seq*/
 
 #ifndef THOMSON
 #define THOMSON
@@ -34,7 +35,6 @@
 #define GAMMA_0         1.0e-6
 
 
-
 typedef Eigen::Matrix<float, Eigen::Dynamic, 1> VectorXf;
 
  
@@ -42,6 +42,7 @@ class Particles {
     public:
         Particles(int N, float R, std::string initProcedure = "random");
         VectorXf rSpherical; // if we knew the size in advance: rSpherical(n)
+        VectorXf rCartesian;
         float R;
         int N;
         float lb;
@@ -51,7 +52,6 @@ class Particles {
         VectorXf getCartesian();
     
     protected:
-        VectorXf rCartesian;
         double bondLength();
         
     private:
@@ -66,12 +66,12 @@ class Particles {
 
 
 
-class Export{
+class Export {
 
     public:
         Export(Particles *particles, std::string outPath);
-        std::string outPath;
         Particles *particles;
+        std::string outPath;
         void exportXYZ(std::string fileName);
         void exportVTU(std::string fileName);
         void exportDAT(std::string fileName);
@@ -84,6 +84,15 @@ class Export{
 
 
 
+class Import {
+    public:
+        Import(Particles *particles, std::string inPath);        
+        Particles *particles;
+        std::string inPath;
+        void importXYZ(std::string fileName);
+        void importDAT(std::string fileName);
+};
+ 
 
 /**************************************************************************
 *

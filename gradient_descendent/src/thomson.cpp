@@ -84,7 +84,6 @@ void Particles::setInitialConfiguration_Random()
         if(td>l0Char)
             np++;
         
-        
     } while(np<N);
 }
 
@@ -432,3 +431,132 @@ std::string Export::getItfileName(int it, std::string fileName)
     std::string fullName = ss.str();
     return fullName;    
 }
+
+
+
+Import::Import(Particles *particles, std::string inPath) 
+{
+    this->inPath = inPath;
+    this->particles = particles;
+}
+
+
+void Import::importDAT(std::string fileName) 
+{
+    
+    std::ifstream infile_coords(inPath + fileName);        
+    std::string line;                            // Current line during file reading
+    unsigned int l=0;                               // Line under check
+    if(infile_coords.is_open()) 
+    {
+        while (std::getline(infile_coords, line))
+        {
+            float coords;
+            std::stringstream ss(line);
+            particles->rCartesian.conservativeResize(3*(l+1)); 
+            
+            unsigned int col=0;
+            while (ss >> coords) {
+                particles->rCartesian(3*l + col) = coords;
+                col++;
+            }
+            
+            ++l;
+        }
+        infile_coords.close();
+    } else {
+        std::cout << "Error while opening initial coordinates file: " << inPath << ". Exiting." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    particles->N = l;
+    
+    // Determine radius and set it
+    float sqR=0;
+    for(int i=0; i<particles->N; i++)
+        sqR += particles->rCartesian(Eigen::seq(i*3,i*3+2)).squaredNorm();
+
+    sqR /= particles->N;
+    particles->R = sqrt(sqR);
+    
+    // Determine spherical coordinates
+    particles->rSpherical.resize(2*particles->N); 
+    for(int i=0; i<particles->N; i++) {
+        float x,y,z;
+        x=particles->rCartesian(i*3);
+        y=particles->rCartesian(i*3+1);
+        z=particles->rCartesian(i*3+2);
+        
+        // Azimuth angle restricted to [0,2*PI]
+        particles->rSpherical(i*2) = atan2(y,x);
+        if(particles->rSpherical(i*2)<0)     
+            2.0*PI + particles->rSpherical(i*2);
+        
+        // Polar angle
+        particles->rSpherical(i*2 + 1) = acos(z/particles->R);
+    }
+    
+}
+
+
+
+void Import::importXYZ(std::string fileName) 
+{
+    
+    std::ifstream infile_coords(inPath + fileName);        
+    std::string line;                            // Current line during file reading
+    unsigned int l=0;                        // Line under check
+    if(infile_coords.is_open()) 
+    {
+        while (std::getline(infile_coords, line))
+        {
+            if(l>=2) 
+            {
+                float coords;
+                unsigned int el=l-2;
+                std::stringstream ss(line);
+                particles->rCartesian.conservativeResize(3*(el+1)); 
+
+                unsigned int col=0; 
+                while (ss >> coords) {
+                    particles->rCartesian(3*el + col) = coords;
+                    col++;
+                }
+            }
+            ++l;
+        }
+        infile_coords.close();
+    } else {
+        std::cout << "Error while opening initial coordinates file: " << inPath << ". Exiting." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    
+    particles->N = l-2;
+    
+    // Determine radius and set it
+    float sqR=0;
+    for(int i=0; i<particles->N; i++)
+        sqR += particles->rCartesian(Eigen::seq(i*3,i*3+2)).squaredNorm();
+
+    sqR /= particles->N;
+    particles->R = sqrt(sqR);
+    
+    // Determine spherical coordinates
+    particles->rSpherical.resize(2*particles->N); 
+    for(int i=0; i<particles->N; i++) {
+        float x,y,z;
+        x=particles->rCartesian(i*3);
+        y=particles->rCartesian(i*3+1);
+        z=particles->rCartesian(i*3+2);
+        
+        // Azimuth angle restricted to [0,2*PI]
+        particles->rSpherical(i*2) = atan2(y,x);
+        if(particles->rSpherical(i*2)<0)     
+            2.0*PI + particles->rSpherical(i*2);
+        
+        // Polar angle
+        particles->rSpherical(i*2 + 1) = acos(z/particles->R);
+    }
+    
+}
+

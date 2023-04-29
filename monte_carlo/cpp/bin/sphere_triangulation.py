@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial import ConvexHull
-from numba import jit
+from numba import jit, njit
 
 
 # Triangulation and data saving
@@ -137,7 +137,7 @@ def check_orient(r0, tri):
 
 if __name__ == "__main__":
     
-    SPHERE_COORD_FNAME = "rsphere_eq.dat"
+    SPHERE_COORD_FNAME = "init_coords.dat"
     MESH_FNAME = "mesh.dat"
     
     r0 = np.loadtxt(SPHERE_COORD_FNAME, delimiter="\t") # Coordinates minim

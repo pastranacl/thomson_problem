@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     //Import importer(&surface, "./");
     //importer.importXYZ("init_coords.xyz");
     
-    surface.minimise(100, 1.0e-6);
+    surface.minimise(2000, 1.0e-8);
     
     Export dump(&surface, "./");
     dump.exportDAT("rsphere_eq");
